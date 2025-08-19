@@ -2,7 +2,13 @@
 
 **🖥️ Streamlit frontend • 🐍 Python RAG backend • 🐳 Docker Compose • 🌐 NGINX reverse proxy • ☁️ AWS EC2 (t3.micro, Free Tier) • ⏰ cron scheduling**
 
-🔗 **Live App:** [Click here to experience the app](http://your-domain.com) 
+🔗 **Live App:** [Click here to experience the app](http://51.20.104.45/) 
+
+
+🎬 Demo Preview 👇
+
+<img src="https://github.com/suraj5424/RAG-Faiss-pdf-chatbot-docker-AWS/blob/main/demo.gif" alt="Demo of Virtual Gesture Mouse" style="width:600px; height:auto;" />
+
 
 This single README documents the **entire** RAG Chatbot web application: local development, containerized deployment, NGINX reverse proxy, and a low-cost AWS EC2 deployment with scheduled runtime using `cron` to reduce resource usage. Follow this guide to set up, run, deploy, and maintain the app.
 
