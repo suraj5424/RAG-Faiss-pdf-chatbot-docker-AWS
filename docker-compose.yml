@@ -1,0 +1,104 @@
+# LOCAL HOST READY
+version: '3.8'
+
+services:
+  backend:
+    build: ./rag_pdfchatbot_backend
+    container_name: rag-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env  # Backend uses environment variables like model selection
+    restart: always
+    volumes:
+      - ./onnx_model:/app/onnx_model  # Mount models externally to switch at runtime
+    mem_limit: 600m
+    cpus: 0.5
+
+  frontend:
+    build: ./rag_pdfchatbot_frontend
+    container_name: rag-frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    restart: always
+    mem_limit: 350m
+    cpus: 0.4
+
+  nginx:
+    build: ./nginx
+    container_name: nginx-reverse-proxy
+    ports:
+      - "80:80"  # Public port for all traffic
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+
+
+# # AWS  READY DEPLOYMENT
+# version: '3.8'
+# services:
+#   backend:
+#     image: suraj5424/rag_pdfchatbot_backend:latest
+#     container_name: rag-backend
+#     ports:
+#       - "8000:8000"
+#     env_file:
+#       - .env  # Backend uses environment variables like model selection
+#     restart: always
+#     volumes:
+#       - ./onnx_model:/app/onnx_model
+#     mem_limit: 600m
+#     cpus: 0.5
+
+#   frontend:
+#     image: suraj5424/rag_pdfchatbot_frontend:latest
+#     container_name: rag-frontend
+#     ports:
+#       - "8501:8501"
+#     depends_on:
+#       - backend
+#     restart: always
+#     mem_limit: 350m
+#     cpus: 0.4
+
+
+# # AWS READY DEPLOYMENT WITH NGINX REVERSE PROXY
+# version: '3.8'
+
+# services:
+#   backend:
+#     image: suraj5424/rag_pdfchatbot_backend:latest
+#     container_name: rag-backend
+#     expose:
+#       - "8000"  # Only accessible to other containers, not the public
+#     env_file:
+#       - .env  # Backend uses environment variables like model selection
+#     restart: always
+#     volumes:
+#       - ./onnx_model:/app/onnx_model
+#     mem_limit: 600m
+#     cpus: 0.5
+
+#   frontend:
+#     image: suraj5424/rag_pdfchatbot_frontend:latest
+#     container_name: rag-frontend
+#     expose:
+#       - "8501"  # Only accessible to other containers
+#     depends_on:
+#       - backend
+#     restart: always
+#     mem_limit: 350m
+#     cpus: 0.4
+
+#   nginx:
+#     build: ./nginx
+#     container_name: nginx-reverse-proxy
+#     ports:
+#       - "80:80"  # Public port for all traffic
+#     depends_on:
+#       - frontend
+#       - backend
+#     restart: always
