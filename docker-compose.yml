@@ -1,5 +1,4 @@
 # LOCAL HOST READY
-version: '3.8'
 
 services:
   backend:
@@ -37,68 +36,43 @@ services:
     restart: always
 
 
-# # AWS  READY DEPLOYMENT
-# version: '3.8'
+# # AWS DEPLOYMENT READY
+
 # services:
 #   backend:
-#     image: suraj5424/rag_pdfchatbot_backend:latest
+#     image: suraj5424/final-rag_pdfchatbot_backend:1.0
 #     container_name: rag-backend
-#     ports:
-#       - "8000:8000"
 #     env_file:
-#       - .env  # Backend uses environment variables like model selection
+#       - .env
 #     restart: always
-#     volumes:
-#       - ./onnx_model:/app/onnx_model
 #     mem_limit: 600m
 #     cpus: 0.5
+#     networks:
+#       - rag-net
 
 #   frontend:
-#     image: suraj5424/rag_pdfchatbot_frontend:latest
+#     image: suraj5424/latest-rag_pdfchatbot_frontend:1.0
 #     container_name: rag-frontend
-#     ports:
-#       - "8501:8501"
 #     depends_on:
 #       - backend
 #     restart: always
 #     mem_limit: 350m
 #     cpus: 0.4
-
-
-# # AWS READY DEPLOYMENT WITH NGINX REVERSE PROXY
-# version: '3.8'
-
-# services:
-#   backend:
-#     image: suraj5424/rag_pdfchatbot_backend:latest
-#     container_name: rag-backend
-#     expose:
-#       - "8000"  # Only accessible to other containers, not the public
-#     env_file:
-#       - .env  # Backend uses environment variables like model selection
-#     restart: always
-#     volumes:
-#       - ./onnx_model:/app/onnx_model
-#     mem_limit: 600m
-#     cpus: 0.5
-
-#   frontend:
-#     image: suraj5424/rag_pdfchatbot_frontend:latest
-#     container_name: rag-frontend
-#     expose:
-#       - "8501"  # Only accessible to other containers
-#     depends_on:
-#       - backend
-#     restart: always
-#     mem_limit: 350m
-#     cpus: 0.4
+#     networks:
+#       - rag-net
 
 #   nginx:
 #     build: ./nginx
 #     container_name: nginx-reverse-proxy
 #     ports:
-#       - "80:80"  # Public port for all traffic
+#       - "80:80"
 #     depends_on:
 #       - frontend
 #       - backend
 #     restart: always
+#     networks:
+#       - rag-net
+
+# networks:
+#   rag-net:
+#     driver: bridge
