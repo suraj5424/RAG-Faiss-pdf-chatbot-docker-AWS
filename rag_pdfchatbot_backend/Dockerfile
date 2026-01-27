@@ -1,17 +1,3 @@
-# FROM python:3.10-slim
-
-# WORKDIR /app
-
-# COPY requirements.txt .
-# RUN pip install --no-cache-dir -r requirements.txt
-
-# COPY . .
-
-# EXPOSE 8000
-
-# CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-
 
 # Stage 1: Builder stage - install build dependencies and Python packages
 FROM python:3.10-slim AS builder
@@ -39,6 +25,9 @@ COPY --from=builder /root/.local /root/.local
 
 # Copy backend application code
 COPY --from=builder /app .
+
+# Copy the ONNX model directory into the container
+COPY ./onnx_model /app/onnx_model
 
 # Add local pip binaries to PATH
 ENV PATH=/root/.local/bin:$PATH
