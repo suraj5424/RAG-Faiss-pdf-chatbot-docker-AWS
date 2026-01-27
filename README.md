@@ -1,7 +1,7 @@
 # 🤖 RAG Chatbot App
 **🖥️ Streamlit frontend • 🐍 Python RAG backend • 🐳 Docker Compose • 🌐 NGINX reverse proxy • ☁️ AWS EC2 (t3.micro, Free Tier) • ⏰ cron scheduling**
 
-🔗 **Live App:** [Click here to experience the app](http://51.20.104.45/)
+🔗 **Live App:** [Click here to experience the app](http://13.48.71.0/)
 
 🎬 Demo Preview 👇
 
