@@ -3,7 +3,6 @@
 FROM nginx:alpine
 COPY default.conf /etc/nginx/conf.d/default.conf
 
-
 ## AWS READY NGINX CONFIGURATION
 
 # FROM nginx:alpine
