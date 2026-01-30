@@ -3,9 +3,17 @@
 
 🔗 **Live App:** [Click here to experience the app](http://13.48.71.0/)
 
-🎬 Demo Preview 👇
+---
 
-<img src="https://github.com/suraj5424/RAG-Faiss-pdf-chatbot-docker-AWS/blob/main/demo.gif" alt="Demo of RAG Chatbot Application" style="width:600px; height:auto;" />
+## 🎬 Demo Preview 👇
+
+<!-- <img src="https://github.com/suraj5424/RAG-Faiss-pdf-chatbot-docker-AWS/blob/main/demo.gif" alt="Demo of RAG Chatbot Application" style="width:600px; height:auto;" />file -->
+
+### **Reduce the video speed to 0.25×**
+
+https://github.com/user-attachments/assets/cc2f212c-ef5d-4a87-bb59-cf206771e045
+
+
 
 This README documents the **entire** RAG Chatbot web application: local development, containerized deployment, NGINX reverse proxy, and a low‑cost AWS EC2 deployment with scheduled runtime using `cron` to reduce resource usage. Follow this guide to set up, run, deploy, and maintain the app.
 
