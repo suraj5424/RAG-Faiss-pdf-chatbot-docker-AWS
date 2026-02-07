@@ -271,20 +271,21 @@ server {
 To minimise AWS costs, the backend runs only during working hours (Mon‑Sat 07:00‑22:00 Berlin time). The frontend can stay up 24/7 or follow the same schedule.
 
 ```cron
-# Use Berlin time for schedule
+
+# Use Berlin time for schedule (UTC time zone)
 TZ=Europe/Berlin
 
-# Start backend at 07:00 Mon‑Sat
-0 7 * * 1-6 /usr/bin/docker start rag-backend
+# Start backend at 07:00 Mon-Sat
+0 6 * * 1-6 /usr/bin/docker start rag-backend
 
-# Stop backend at 22:00 Mon‑Sat
-0 22 * * 1-6 /usr/bin/docker stop rag-backend
+# Stop backend at 22:00 Mon-Sat
+0 21 * * 1-6 /usr/bin/docker stop rag-backend
 
 # Ensure backend is stopped on Sunday at midnight
 0 0 * * 0 /usr/bin/docker stop rag-backend
 
-# Start frontend at 07:00 Mon‑Sat (optional – comment out to keep it always running)
-0 7 * * 1-6 /usr/bin/docker start rag-frontend
+# Start frontend at 07:00 Mon-Sat (optional)
+0 6 * * 1-6 /usr/bin/docker start rag-frontend
 ```
 
 * Use full paths (`/usr/bin/docker`) to avoid PATH issues in cron.
