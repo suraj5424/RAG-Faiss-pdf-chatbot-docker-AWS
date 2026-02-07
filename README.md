@@ -1,7 +1,7 @@
 # 🤖 RAG Chatbot App
 **🖥️ Streamlit frontend • 🐍 Python RAG backend • 🐳 Docker Compose • 🌐 NGINX reverse proxy • ☁️ AWS EC2 (t3.micro, Free Tier) • ⏰ cron scheduling**
 
-🔗 **Live App:** [Click here to experience the app](http://13.48.71.0/)
+🔗 **Live App:** [Click here to experience the app](http://89.168.69.229/)
 
 ---
 
@@ -84,7 +84,7 @@ A web application that combines retrieval (vector search over ingested documents
 ## Infrastructure
 
 * Docker Compose deployment with container‑level memory & CPU limits
-* NGINX reverse proxy exposes only port **80** (optionally 443)
+* NGINX reverse proxy exposes only port **80**
 * Cron jobs to start/stop containers on a schedule to keep costs low
 
 ---
@@ -127,12 +127,6 @@ A web application that combines retrieval (vector search over ingested documents
 
 # 🔧 6. Installation & Setup
 
-## Clone the repository
-
-```bash
-git clone https://github.com/your-repo/rag-chatbot.git
-cd rag-chatbot
-```
 
 ## Project directory layout
 
@@ -155,76 +149,11 @@ rag-chatbot/
 └─ .env
 ```
 
-## Create & populate `.env`
-
-Copy the example and edit with your secrets:
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-### Required variables
-
-```env
-OPENROUTER_API_KEY=...
-CEREBRAS_API_KEY=...
-MODEL_NAME=deepseek-chat-v3-0324   # or any supported model
-```
-
-> **Security note:** Do **not** commit `.env` to source control. Use AWS Secrets Manager or Docker secrets for production.
-
 ---
 
 # 🐳 7. Docker Compose – `docker-compose.yml`
 
 The current `docker-compose.yml` builds the backend, frontend, and NGINX from the repository:
-
-```yaml
-version: '3.8'
-
-services:
-  backend:
-    build: ./rag_pdfchatbot_backend
-    container_name: rag-backend
-    ports:
-      - "8000:8000"
-    env_file:
-      - .env
-    restart: always
-    volumes:
-      - ./onnx_model:/app/onnx_model   # model files
-      - ./user_data:/app/user_data     # persistent FAISS index
-    mem_limit: 600m
-    cpus: 0.5
-
-  frontend:
-    build: ./rag_pdfchatbot_frontend
-    container_name: rag-frontend
-    ports:
-      - "8501:8501"
-    depends_on:
-      - backend
-    restart: always
-    mem_limit: 350m
-    cpus: 0.4
-
-  nginx:
-    build: ./nginx
-    container_name: nginx-reverse-proxy
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-      - backend
-    restart: always
-    mem_limit: 200m
-    cpus: 0.2
-
-networks:
-  default:
-    driver: bridge
-```
 
 **Key points**
 
@@ -349,34 +278,6 @@ streamlit run app.py
 
 Set `BACKEND_HOST` in `.env` to `http://localhost:8000` for local testing.
 
-## Containerised (recommended)
-
-```bash
-docker-compose up -d --build
-```
-
-### Verify containers
-
-```bash
-docker ps
-docker logs -f rag-frontend
-docker logs -f rag-backend
-docker logs -f nginx-reverse-proxy
-```
-
-### Access the app
-
-* Public URL: `http://<EC2_PUBLIC_IP>/` (NGINX forwards to Streamlit)
-* Health check: `http://<EC2_PUBLIC_IP>/health`
-
-### Restart / stop
-
-```bash
-docker-compose restart backend
-docker-compose stop backend
-docker-compose up -d
-```
-
 ---
 
 # 🧪 13. API / Frontend Integration (contract summary)
@@ -402,33 +303,7 @@ All endpoints require a `session_id` query parameter (UUID‑style) to isolate u
 * **Contributions** – Fork the repo, create a feature branch, and open a Pull Request.  
 * **Credits** – Built with Streamlit, FastAPI, LangChain‑style components, Docker, and NGINX. Hosted on AWS EC2.
 
----
 
-# ✅ 15. Quick Deploy Checklist
-
-1. Launch an AWS `t3.micro` instance (Ubuntu 24.04) and open ports 22 (SSH) and 80 (HTTP).  
-2. SSH into the instance and install Docker & Docker Compose.  
-3. Clone the repository into `/home/ubuntu/rag-chatbot`.  
-4. Copy `.env.example` → `.env` and fill in API keys.  
-5. (Recommended) Create a 1 GiB swap file to avoid OOM.  
-6. Ensure `nginx/default.conf` and `docker-compose.yml` are present.  
-7. Run `docker-compose up -d --build`.  
-8. Add the cron entries from section 9.  
-9. Verify the site at `http://<EC2_PUBLIC_IP>/`.  
-10. (Optional) Add TLS via Let's Encrypt and harden security groups.  
-11. Monitor logs; adjust `mem_limit`/`cpus` if needed.
-
----
-
-# 📚 16. Further Enhancements (next steps)
-
-* **Authentication** – JWT or API‑key based auth for the backend.  
-* **Scalable vector store** – Replace local FAISS with Qdrant or Pinecone for multi‑instance scaling.  
-* **Observability** – Add Prometheus + Grafana dashboards; ship logs to CloudWatch.  
-* **CI/CD** – GitHub Actions to build Docker images and deploy automatically to EC2.  
-* **TLS** – Automate HTTPS with Certbot (Let's Encrypt) behind NGINX.
-
----
 
 ## 🙋 Author & Contact
 
