@@ -63,11 +63,6 @@ if not OPENROUTER_API_KEY:
     logger.error("OPENROUTER_API_KEY is not set in environment.")
     raise ValueError("OPENROUTER_API_KEY is not set in environment.")
 
-CEREBRAS_API_KEY = os.getenv("CEREBRAS_API_KEY")
-if not CEREBRAS_API_KEY:
-    logger.error("CEREBRAS_API_KEY is not set in environment.")
-    raise ValueError("CEREBRAS_API_KEY is not set in environment.")
-
 # --- Constants and Configurations ---
 class Config:
     # Updated FAISS_DB_DIR to be the parent directory for all sessions
@@ -77,10 +72,25 @@ class Config:
     CHUNK_SIZE = 1000
     CHUNK_OVERLAP = 200
     EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-    # LLM_MODEL = "deepseek/deepseek-chat-v3-0324:free"
-    # LLM_MODEL = "mistralai/mistral-small-3.1-24b-instruct:free"
-    # LLM_MODEL = "nvidia/nemotron-nano-12b-v2-vl:free"
-    LLM_MODEL = "gpt-oss-120b"
+    # Primary and Fallback Models (Ordered by priority)
+    FALLBACK_MODELS = [
+        "nvidia/nemotron-3-nano-30b-a3b:free",
+        "openrouter/free",
+        "arcee-ai/trinity-large-preview:free",
+        "arcee-ai/trinity-mini:free",
+        "openai/gpt-oss-20b:free",
+        "qwen/qwen3-next-80b-a3b-instruct:free",
+        "minimax/minimax-m2.5:free",
+        "qwen/qwen3.6-plus-preview:free",
+        "qwen/qwen3-coder:free",
+        "nvidia/nemotron-nano-12b-v2-vl:free",
+        "meta-llama/llama-3.3-70b-instruct:free",
+        "nvidia/nemotron-nano-9b-v2:free",
+        "stepfun/step-3.5-flash:free",
+        "nvidia/nemotron-3-super-120b-a12b:free",
+        "z-ai/glm-4.5-air:free",
+        "openai/gpt-oss-120b:free",
+    ]
     DEFAULT_TEMPERATURE = 0.5
     MIN_TEMPERATURE = 0.0
     MAX_TEMPERATURE = 1.5
@@ -384,32 +394,31 @@ def cleanup_expired_sessions():
                 logger.error(f"Error deleting problematic session {session_id}: {e}")
 
 # --- LLM Setup ---
-# def create_llm(temperature: float = Config.DEFAULT_TEMPERATURE):
-#     """Create an LLM instance with the specified temperature."""
-#     # Clamp temperature to valid range
-#     temp = max(Config.MIN_TEMPERATURE, min(Config.MAX_TEMPERATURE, temperature))
-#     return ChatOpenAI(
-#         model=Config.LLM_MODEL,
-#         openai_api_key=OPENROUTER_API_KEY,
-#         base_url="https://openrouter.ai/api/v1",
-#         temperature=temp,
-#         timeout=30.0,  # Add timeout for reliability
-#         max_retries=3,  # Add retries for network issues
-#     )
-
-
 def create_llm(temperature: float = Config.DEFAULT_TEMPERATURE):
-    """Create an LLM instance with the specified temperature."""
+    """Create an LLM instance with automatic fallback model selection for robustness."""
     # Clamp temperature to valid range
     temp = max(Config.MIN_TEMPERATURE, min(Config.MAX_TEMPERATURE, temperature))
-    return ChatOpenAI(
-        model=Config.LLM_MODEL,
-        openai_api_key=CEREBRAS_API_KEY,
-        base_url="https://api.cerebras.ai/v1",
-        temperature=temp,
-        timeout=30.0,  # Add timeout for reliability
-        max_retries=3,  # Add retries for network issues
-    )
+    
+    # Try models in priority order until one works
+    last_exception = None
+    for model in Config.FALLBACK_MODELS:
+        try:
+            return ChatOpenAI(
+                model=model,
+                openai_api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1",
+                temperature=temp,
+                timeout=30.0,
+                max_retries=2,
+            )
+        except Exception as e:
+            last_exception = e
+            logger.warning(f"Failed to initialize model {model}, trying next fallback...")
+            continue
+    
+    # If all models failed
+    logger.error("All fallback models failed to initialize")
+    raise last_exception
 
 # --- Tools ---
 @tool
@@ -608,7 +617,7 @@ async def lifespan(app: FastAPI):
     print(f"STARTING RAG CHATBOT API - {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*50}\033[0m")
     print(f"\033[92m✓ Embedding model: {Config.EMBEDDING_MODEL}\033[0m")
-    print(f"\033[92m✓ LLM model: {Config.LLM_MODEL}\033[0m")
+    print(f"\033[92m✓ LLM Fallback Models: {len(Config.FALLBACK_MODELS)} available\033[0m")
     print(f"\033[92m✓ Session expiration: {Config.SESSION_EXPIRATION_MINUTES} minutes\033[0m")
     print(f"\033[92m✓ User data directory: {os.path.abspath(Config.FAISS_DB_DIR)}\033[0m")
     logger.info("Starting session cleanup task...")
